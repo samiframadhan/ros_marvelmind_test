@@ -147,6 +147,10 @@ src/hedge_rcv_bin.cpp
 src/marvelmind_hedge.c
 )
 
+# add_executable(hedge_message_adapter
+# src/hedge_message_adapter.cpp
+# )
+
 add_dependencies(hedge_rcv_bin marvelmind_nav_generate_messages_cpp)
 
 target_link_libraries(hedge_rcv_bin
@@ -213,3 +217,7 @@ install(TARGETS hedge_rcv_bin subscriber_test
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+add_executable(hedge_message_adapter src/hedge_message_adapter.cpp)
+target_link_libraries(hedge_message_adapter ${catkin_LIBRARIES})
+add_dependencies(hedge_message_adapter marvelmind_nav_generate_messages_cpp)

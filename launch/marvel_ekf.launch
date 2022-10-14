@@ -1,0 +1,30 @@
+<launch>
+  <arg name="file1_path" default="berhasil_01"/>
+  <arg name="file2_path" default="hedge_marvelmind"/>
+  <arg name="map_path" default="maps/map_fulllantai3_edited.yaml"/>
+  <node pkg="rosbag" type="play" name="play1" output="screen" args="--clock $(find marvelmind_nav)/$(arg file1_path).bag"/>
+  <node pkg="rosbag" type="play" name="play2" output="screen" args="--clock $(find marvelmind_nav)/$(arg file2_path).bag"/>
+
+  <!-- Marvelmind -->
+  <node pkg="marvelmind_nav" type="hedge_message_adapter" name="hedge_message_adapter"/>
+
+  <!-- Map server -->
+  <node pkg="map_server" type="map_server" name="map_server" args="$(find marvelmind_nav)/$(arg map_path)"/>
+
+  <!-- Beacon static tf -->
+  <node pkg="tf" type="static_transform_publisher" name="beacon_imu_broadcaster" args="0 0 0 0 0 0 base_link beacon_imu_link 100" />
+  <node pkg="tf" type="static_transform_publisher" name="beacon_map_broadcaster" args="0 0 0 0 0 0 map beacon_map 100" />
+  
+  <!-- Robot Static TF -->
+  <arg name="robot_model" default="$(find marvelmind_nav)/urdf/robot_covid.xacro"/>
+  <param name="robot_description" command="$(find xacro)/xacro $(arg robot_model)"/>
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher"/>
+  <node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_state_publisher" />
+
+  <!-- Robot Localization -->
+  <node pkg="robot_localization" type="ekf_localization_node" name="robot_localization">
+    <rosparam file="$(find marvelmind_nav)/params/imu_ekf.yaml" command="load"/>
+    <remap from="odometry/filtered" to="odometry/filtered2"/>
+  </node>
+
+</launch>
